@@ -37,26 +37,26 @@ regd_users.post("/login", (req, res) => {
 
 // Task 8: Add or Modify review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  const isbn = req.params.isbn;
-  const review = req.query.review;
-  const username = req.session.authorization?.username;
+    const isbn = req.params.isbn;
+    const username = getUsernameFromToken(req);
+    const reviewText = req.query.review;
 
-  if (!username) {
-    return res.status(403).json({ message: "User not logged in" });
-  }
+    if (!username) {
+        return res.status(401).json({ message: "User not logged in" });
+    }
 
-  if (!books[isbn]) {
-    return res.status(404).json({ message: "Book not found" });
-  }
+    if (!books[isbn]) {
+        return res.status(404).json({ message: "Book not found" });
+    }
 
-  if (!review) {
-    return res.status(400).json({ message: "Review is required" });
-  }
+    if (!reviewText) {
+        return res.status(400).json({ message: "Please provide review text as query parameter" });
+    }
 
-  // Add or modify review for this user
-  books[isbn].reviews[username] = review;
+    books[isbn].reviews = books[isbn].reviews || {};
+    books[isbn].reviews[username] = reviewText;
 
-  return res.status(200).json({ message: "Review added/updated", reviews: books[isbn].reviews });
+    return res.status(200).json({ message: "Review added/updated successfully", reviews: books[isbn].reviews });
 });
 
 // Task 9: Delete review
